@@ -1,61 +1,21 @@
 #pragma once
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <glad/gl.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
-class Shader
-{
+#include <string>
+#include <glm/ext/matrix_float4x4.hpp>
+
+class Shader {
 public:
     unsigned int ID;
 
-    Shader(const char *vertexPath, const char *fragmentPath)
-    {
-        std::string vCode, fCode;
-        std::ifstream vShaderFile(vertexPath);
-        std::ifstream fShaderFile(fragmentPath);
-        std::stringstream vStream, fStream;
-        vStream << vShaderFile.rdbuf();
-        fStream << fShaderFile.rdbuf();
-        vCode = vStream.str();
-        fCode = fStream.str();
+    Shader(const char *vertexShaderPath, const char *fragmentShaderPath);
 
-        const char *vShaderCode = vCode.c_str();
-        const char *fShaderCode = fCode.c_str();
+    void use();
 
-        unsigned int vertex, fragment;
-        vertex = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertex, 1, &vShaderCode, NULL);
-        glCompileShader(vertex);
+    void setInt(const std::string &name, int value);
 
-        fragment = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragment, 1, &fShaderCode, NULL);
-        glCompileShader(fragment);
+    void setFloat(const std::string &name, float value);
 
-        ID = glCreateProgram();
-        glAttachShader(ID, vertex);
-        glAttachShader(ID, fragment);
-        glLinkProgram(ID);
+    void setVec2(const std::string &name, float x, float y);
 
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
-    }
-
-    void use()
-    {
-        glUseProgram(ID);
-    }
-
-    void setMat4(const char *name, const glm::mat4 &mat)
-    {
-        glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
-    }
-
-    void setVec3(const char *name, const glm::vec3 &vec)
-    {
-        glUniform3fv(glGetUniformLocation(ID, name), 1, &vec[0]);
-    }
+    void setMat4(const std::string &name, const glm::mat4 &mat);
 };
