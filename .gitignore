@@ -44,3 +44,6 @@
 build
 .vscode
 .cache
+.idea
+.DS_Store
+**/.DS_Store
