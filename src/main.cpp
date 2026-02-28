@@ -23,11 +23,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   }
 }
 
-void processInput(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);
-}
-
 int main() {
   glfwInit();
 
@@ -66,10 +61,10 @@ int main() {
   };
   std::string accretion_disk_texture = "textures/disk.png";
 
-  Skybox skybox{skybox_faces, 1000.0f};
-  Camera camera{};
-  BlackHole black_hole{0.5};
-  AccretionDisk accretion_disk{accretion_disk_texture, 1, 4};
+  Skybox skybox{skybox_faces, 300.0f};
+  Camera camera{{70.0f, 30.0f, 70.0f}, {-15.0f, -135.0f, 0.0f}, 10.0f};
+  BlackHole black_hole{1};
+  AccretionDisk accretion_disk{accretion_disk_texture, 0.3, 8, 50};
 
   Scene scene{camera, std::move(skybox), black_hole, std::move(accretion_disk)};
 
@@ -80,7 +75,7 @@ int main() {
   glfwSetWindowUserPointer(window, &renderer);
 
   while (!glfwWindowShouldClose(window)) {
-    processInput(window);
+    renderer.processInput(window);
     renderer.render(window);
     glfwPollEvents();
   }
