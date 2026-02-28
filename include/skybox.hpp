@@ -6,16 +6,13 @@
 #include <iostream>
 #include "stb_image.h"
 
-class Skybox
-{
+class Skybox {
 public:
     GLuint cubemap_tex;
     float escape_radius;
 
-    Skybox(const std::vector<std::string> &faces, float escape_radius_) : escape_radius(escape_radius_)
-    {
-        if (faces.size() != 6)
-        {
+    Skybox(const std::vector<std::string> &faces, float escape_radius_) : escape_radius(escape_radius_) {
+        if (faces.size() != 6) {
             std::cerr << "Skybox requires exactly 6 textures!\n";
             return;
         }
@@ -24,18 +21,14 @@ public:
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_tex);
 
         int width, height, channels;
-        for (unsigned int i = 0; i < 6; i++)
-        {
+        for (unsigned int i = 0; i < 6; i++) {
             unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &channels, 0);
-            if (data)
-            {
+            if (data) {
                 GLenum format = (channels == 3) ? GL_RGB : GL_RGBA;
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
                 stbi_image_free(data);
-            }
-            else
-            {
+            } else {
                 std::cerr << "Failed to load skybox texture: " << faces[i] << "\n";
             }
         }
@@ -49,41 +42,39 @@ public:
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
 
-    Skybox(const Skybox&) = delete;
-    Skybox& operator=(const Skybox&) = delete;
+    Skybox(const Skybox &) = delete;
 
-    Skybox(Skybox&& other) noexcept
-        : cubemap_tex(other.cubemap_tex)
-    {
+    Skybox &operator=(const Skybox &) = delete;
+
+    Skybox(Skybox &&other) noexcept
+        : cubemap_tex(other.cubemap_tex), escape_radius(other.escape_radius) {
         other.cubemap_tex = 0;
+        other.escape_radius = 0;
     }
 
-    Skybox& operator=(Skybox&& other) noexcept
-    {
-        if (this != &other)
-        {
+    Skybox &operator=(Skybox &&other) noexcept {
+        if (this != &other) {
             glDeleteTextures(1, &cubemap_tex);
 
             cubemap_tex = other.cubemap_tex;
             other.cubemap_tex = 0;
+            escape_radius = other.escape_radius;
+            other.escape_radius = 0;
         }
         return *this;
     }
 
-    ~Skybox()
-    {
+    ~Skybox() {
         if (cubemap_tex != 0)
             glDeleteTextures(1, &cubemap_tex);
     }
 
-    void bind(GLenum unit = GL_TEXTURE0) const
-    {
+    void bind(GLenum unit = GL_TEXTURE0) const {
         glActiveTexture(unit);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_tex);
     }
 
-    void unbind() const
-    {
+    void unbind() const {
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
 };

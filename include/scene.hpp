@@ -12,9 +12,10 @@ public:
                                           m_black_hole(black_hole), m_accretion_disk(std::move(accretion_disk)) {
     }
 
-    [[nodiscard]] const Skybox &getSkybox() const { return m_skybox; }
-    [[nodiscard]] const Camera &getCamera() const { return m_camera; }
-    [[nodiscard]] const BlackHole &getBlackHole() const { return m_black_hole; }
+    [[nodiscard]] Skybox &getSkybox() { return m_skybox; }
+    [[nodiscard]] Camera &getCamera() { return m_camera; }
+    [[nodiscard]] BlackHole &getBlackHole() { return m_black_hole; }
+    [[nodiscard]] AccretionDisk &getAccretionDisk() { return m_accretion_disk; }
 
 private:
     Camera m_camera;

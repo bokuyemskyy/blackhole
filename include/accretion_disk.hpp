@@ -10,14 +10,15 @@ public:
     GLuint texture{};
 
     float rotation_speed; // rad/M
-    float diameter;
+    float inner_radius;
     float outer_radius;
 
     AccretionDisk(const std::string &texture_path, float rotation_speed_,
-                  float diameter_) : rotation_speed(rotation_speed_), diameter(diameter_) {
+                  float inner_radius_, float outer_radius_) : rotation_speed(rotation_speed_),
+                                                              inner_radius(inner_radius_), outer_radius(outer_radius_) {
         int width, height, channels;
 
-        unsigned char *data = stbi_load(texture_path.c_str(), &width, &height, &channels, 0);
+        unsigned char *data = stbi_load(texture_path.c_str(), &width, &height, &channels, 4);
 
         if (!data) {
             std::cerr << "Failed to load accretion disk texture: "
@@ -28,15 +29,18 @@ public:
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
 
-        GLenum format = (channels == 3) ? GL_RGB : GL_RGBA;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        GLfloat maxAnisotropy = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         stbi_image_free(data);
@@ -49,7 +53,8 @@ public:
     AccretionDisk(AccretionDisk &&other) noexcept
         : texture(other.texture),
           rotation_speed(other.rotation_speed),
-          diameter(other.diameter) {
+          inner_radius(other.inner_radius),
+          outer_radius(other.outer_radius) {
         other.texture = 0;
     }
 
@@ -59,7 +64,7 @@ public:
 
             texture = other.texture;
             rotation_speed = other.rotation_speed;
-            diameter = other.diameter;
+            inner_radius = other.inner_radius;
             outer_radius = other.outer_radius;
 
             other.texture = 0;

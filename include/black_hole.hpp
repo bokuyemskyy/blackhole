@@ -1,6 +1,5 @@
 #pragma once
 
-struct BlackHole
-{
-    float spin;
+struct BlackHole {
+    float mass;
 };
