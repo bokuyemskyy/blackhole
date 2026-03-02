@@ -21,28 +21,28 @@ uniform int uMaxSteps;
 uniform vec2 uResolution;
 uniform float uTime;
 
-const int max_steps = 1000;
+const int max_steps = 800;
 const float min_step_size = 0.1;
 
 float rs = 2 * uBlackHoleMass;
 float three_m = 3 * uBlackHoleMass;
 float r_isco = 3.0 * rs;
 
-vec4 geodesic(float r, float v_r, float v_phi, float b) {
-    return vec4(v_r, (b * b) * (1 - three_m / r) / (r * r * r), v_phi, -2 * v_r * v_phi / r);
+vec3 geodesic(float r, float v_r, float b) {
+    float v_phi = b / (r * r);
+    return vec3(v_r, (b * b) * (1.0 - three_m / r) / (r * r * r), v_phi);
 }
 
-vec4 rk4(float r, float v_r, float phi, float v_phi, float b, float h) {
-    vec4 state1 = geodesic(r, v_r, v_phi, b);
-    vec4 state2 = geodesic(r + (h / 2) * state1.x, v_r + (h / 2) * state1.y, v_phi + (h / 2) * state1.w, b);
-    vec4 state3 = geodesic(r + (h / 2) * state2.x, v_r + (h / 2) * state2.y, v_phi + (h / 2) * state2.w, b);
-    vec4 state4 = geodesic(r + h * state3.x, v_r + h * state3.y, v_phi + h * state3.w, b);
+vec3 rk4(float r, float v_r, float phi, float b, float h) {
+    vec3 state1 = geodesic(r,                        v_r,                        b);
+    vec3 state2 = geodesic(r + (h/2) * state1.x,    v_r + (h/2) * state1.y,    b);
+    vec3 state3 = geodesic(r + (h/2) * state2.x,    v_r + (h/2) * state2.y,    b);
+    vec3 state4 = geodesic(r + h     * state3.x,    v_r + h     * state3.y,    b);
 
-    float r_next = r + (h / 6.0) * (state1.x + 2.0 * state2.x + 2.0 * state3.x + state4.x);
-    float v_r_next = v_r + (h / 6.0) * (state1.y + 2.0 * state2.y + 2.0 * state3.y + state4.y);
-    float phi_next = phi + (h / 6.0) * (state1.z + 2.0 * state2.z + 2.0 * state3.z + state4.z);
-    float v_phi_next = v_phi + (h / 6.0) * (state1.w + 2.0 * state2.w + 2.0 * state3.w + state4.w);
-    return vec4(r_next, v_r_next, phi_next, v_phi_next);
+    float r_next   = r   + (h/6.0) * (state1.x + 2.0*state2.x + 2.0*state3.x + state4.x);
+    float v_r_next = v_r + (h/6.0) * (state1.y + 2.0*state2.y + 2.0*state3.y + state4.y);
+    float phi_next = phi + (h/6.0) * (state1.z + 2.0*state2.z + 2.0*state3.z + state4.z);
+    return vec3(r_next, v_r_next, phi_next);
 }
 
 vec3 getRayDirection() {
@@ -140,12 +140,10 @@ void main() {
     for (int i = 0; i < max_steps; ++i) {
         float h = min_step_size * max(r * 0.1, 1);
 
-        vec4 state = rk4(r, v_r, phi, v_phi, b, h);
-
-        r = state.x;
+        vec3 state = rk4(r, v_r, phi, b, h);
+        r   = state.x;
         v_r = state.y;
         phi = state.z;
-        v_phi = state.w;
 
         vec3 currentPos = r * (radial * cos(phi) + tangent * sin(phi));
 

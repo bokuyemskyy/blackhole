@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
 
-project(BlackHole)
+project(nau)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -25,13 +25,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 
 # Miniaudio
-FetchContent_Declare(
-        miniaudio
-        GIT_REPOSITORY https://github.com/mackron/miniaudio.git
-        GIT_TAG master
-        GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(miniaudio)
+# FetchContent_Declare(
+#         miniaudio
+#         GIT_REPOSITORY https://github.com/mackron/miniaudio.git
+#         GIT_TAG master
+#         GIT_SHALLOW TRUE
+# )
+# FetchContent_MakeAvailable(miniaudio)
 
 # Stb
 FetchContent_Declare(
