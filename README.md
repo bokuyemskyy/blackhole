@@ -20,6 +20,7 @@ All the calculations can be found [here](CALCULATIONS.md)
 1. Clone the repository
 ```
 git clone https://github.com/bokuyemskyy/nau
+cd nau
 ```
 
 2. Configure the project with CMake:
